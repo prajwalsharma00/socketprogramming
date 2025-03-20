@@ -11,15 +11,14 @@ void urlparser(char *url, char **hostname, char **port, char **protocol, char **
     char *p = strstr(url_copy, "://");
     if (p)
     {
-        *p = 0;
+        *p = '\0';
         strcpy(*protocol, url_copy);
         p += 3;
     }
     else
     {
 
-        p = malloc(sizeof(char) * 256);
-        strcpy(p, url_copy);
+        p = url_copy;
     }
     char *temp = p;
 
@@ -28,32 +27,37 @@ void urlparser(char *url, char **hostname, char **port, char **protocol, char **
 
     if (*temp == ':')
     {
-        int size = temp - p;
-        printf("The length of address is %d \n", size);
-        strncpy(*hostname, p, size);
-        p += (size + 1);
-        char *temp_one = strstr(temp, "/");
-        if (temp_one)
+        *temp = '\0';
+
+        strcpy(*hostname, p);
+        p = temp + 1;
+        temp = strchr(p, '/');
+        if (temp)
         {
-            strncpy(*port, p, temp - temp);
-            p += (strlen(*port));
+            *temp = '\0';
+            strcpy(*port, p);
+            p = temp + 1;
+            if (p)
+            {
+                strcpy(*path, p);
+            }
         }
         else
         {
-            strcpy(*port, temp + 1);
+            strcpy(*port, temp);
         }
     }
     else
+
     {
-        printf("the vlaueo f %ld\n", temp - p);
-        strncpy(*hostname, p, temp - p);
-        p += (strlen(*hostname) + 1);
-    }
-    while (*temp && *temp != '/')
-        temp++;
-    if (*temp == '/')
-    {
-        strcpy(*path, temp + 1);
+        *temp = '\0';
+
+        strcpy(*hostname, p);
+        p = temp + 1;
+        if (*p)
+        {
+            strcpy(*path, p);
+        }
     }
 
     // while (*temp && *temp != '/')
@@ -62,9 +66,9 @@ void urlparser(char *url, char **hostname, char **port, char **protocol, char **
     // {
 
     // }
+    free(url_copy);
 
     printf("The protocol found is %s \n", *protocol);
-    printf("The new p locaiton is %s \n", p);
     printf("The new port is %s \n", *port);
     printf("The new path is %s \n", *path);
     printf("The new hostname is %s \n", *hostname);
@@ -76,5 +80,5 @@ int main()
     char *protocol = malloc(sizeof(char) * 256);
     char *port = malloc(sizeof(char) * 256);
     char *path = malloc(sizeof(char) * 256);
-    urlparser("https://netfree.cc/home", &hostname, &port, &protocol, &path);
+    urlparser("https://www.youtube.com:90/watch?v=-TkoO8Z07hI", &hostname, &port, &protocol, &path);
 }
